@@ -1,0 +1,58 @@
+{
+  "name": "supply-chain-brain",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode dev",
+    "prod": "vite --mode prod",
+    "build:dev": "vite build --mode dev",
+    "build:prod": "vite build --mode prod",
+    "eslint": "eslint src --ext .js,.vue,.ts,.jsx,.tsx --ignore-path .gitignore --fix",
+    "preview": "vite preview",
+    "cz": "git add . && czg",
+    "format-code": "bash .husky/format-code.sh",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@tabler/icons-vue": "^2.47.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/tsconfig": "^0.5.1",
+    "@vueuse/core": "^10.9.0",
+    "axios": "^1.6.8",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
+    "postcss-preset-env": "^9.5.6",
+    "radash": "^12.1.0",
+    "tailwindcss": "^3.4.3",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.26.0",
+    "vue": "^3.4.23",
+    "vue-router": "4.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "commitizen": "^4.3.0",
+    "cz-git": "^1.9.1",
+    "czg": "^1.9.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-vue": "^9.25.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.2",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "sass": "^1.75.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.9"
+  },
+  "lint-staged": {
+    "*.{ts,js,vue}": "eslint --fix"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  }
+}
