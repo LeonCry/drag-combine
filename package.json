@@ -28,7 +28,8 @@
     "unplugin-auto-import": "^0.17.5",
     "unplugin-vue-components": "^0.26.0",
     "vue": "^3.4.23",
-    "vue-router": "4.2.5"
+    "vue-router": "4.2.5",
+    "vue3-draggable-resizable": "^1.6.5"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

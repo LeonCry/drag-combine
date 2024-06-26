@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: 'localhost',
-      port: 3333,
+      port: 4444,
     },
   };
 });
