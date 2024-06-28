@@ -1,11 +1,12 @@
 <template>
-  <section ref="container" class="relative h-full w-full">
+  <section ref="container" class="relative mt-[5%] h-[90%] w-[120%] border">
     <Vue3DraggableResizable
       v-for="i in initNumber"
       :id="i"
       :key="i"
       ref="dragRef"
       class="relative"
+      parent
       :init-w="HW"
       :init-h="HW"
       @contextmenu="(e) => showOption(e, 'combine')"
@@ -31,6 +32,7 @@
       :key="fn.parcelId"
       ref="fatherRef"
       lock-aspect-ratio
+      parent
       :resizable="false"
       class="relative z-10"
       @contextmenu="(e) => showOption(e, 'combineOff', fn.parcelId)"
@@ -47,10 +49,11 @@
 import { last, max, min, uid } from 'radash';
 import Vue3DraggableResizable from 'vue3-draggable-resizable';
 import 'vue3-draggable-resizable/dist/Vue3DraggableResizable.css';
-type DragElementType = InstanceType<typeof Vue3DraggableResizable>;
+type DragElementType = InstanceType<typeof Vue3DraggableResizable> & { belong?: string };
 const initNumber = 6;
 const HW = 200;
 const container = ref<HTMLDivElement | null>(null);
+const containerBounding = useElementBounding(container);
 const dragRef = ref<DragElementType[] | null>(null);
 const selectedDragRef = ref<DragElementType[]>([]);
 const fatherRef = ref<DragElementType[] | null>(null);
@@ -66,6 +69,7 @@ const handleCombine = async () => {
     parcelElement: [...selectedDragRef.value],
     parcelId: uid(8, '*'),
   });
+  selectedDragRef.value.forEach((s) => (s.belong = last(fatherParcels.value)?.parcelId));
   await nextTick();
   if (!fatherRef.value || !fatherRef.value.length) return;
   isCombining.value = true;
@@ -85,6 +89,8 @@ const handleCombineOff = (offIndex?: string) => {
   isCombining.value = false;
   draggable.value = true;
   menuContext.value = undefined;
+  const unCombinedElement = fatherParcels.value.find((fp) => fp.parcelId === offIndex);
+  unCombinedElement?.parcelElement.forEach((up) => (up.belong = undefined));
   fatherParcels.value = fatherParcels.value.filter((fp) => fp.parcelId !== offIndex);
 };
 const menuContext = ref<
@@ -94,14 +100,15 @@ const showOption = (e: MouseEvent, type: 'combine' | 'combineOff', offIndex?: st
   e.preventDefault();
   if ([0, 1].includes(selectedDragRef.value!.length) && offIndex === undefined) return;
   menuContext.value = {
-    left: e.clientX,
-    top: e.clientY,
+    left: e.clientX - containerBounding.left.value,
+    top: e.clientY - containerBounding.top.value,
     type,
     offIndex,
   };
 };
+//父与子一同移动
 useEventListener('mousemove', (e: MouseEvent) => {
-  if (e.buttons !== 1 || activeFatherRefId.value === undefined) return;
+  if (activeFatherRefId.value === undefined) return;
   fatherParcels.value
     .find((fp) => fp.parcelId === activeFatherRefId.value)
     ?.parcelElement?.forEach((d) => {
@@ -109,23 +116,41 @@ useEventListener('mousemove', (e: MouseEvent) => {
       d.setTop(d.top + e.movementY);
     });
 });
-const start = ref({
-  x: 0,
-  y: 0,
+//选中的元素一同移动
+useEventListener('mousemove', (e: MouseEvent) => {
+  if (end.value || !selectedDragRef.value.length || e.buttons !== 1) return;
+  const draggingRefId = selectedDragRef.value.filter((s) => s.dragging)[0]?.id;
+  if (!draggingRefId) return;
+  const otherSelectedRef = selectedDragRef.value.filter((s) => s.id !== draggingRefId);
+  otherSelectedRef.forEach((o) => o.setDragging(false));
+  otherSelectedRef.forEach((o) => {
+    o.setLeft(o.left + e.movementX);
+    o.setTop(o.top + e.movementY);
+  });
 });
-const end = ref({
-  x: 0,
-  y: 0,
-});
+const start = ref<
+  | {
+      x: number;
+      y: number;
+    }
+  | undefined
+>();
+const end = ref<
+  | {
+      x: number;
+      y: number;
+    }
+  | undefined
+>();
 const selecting = ref(false);
 const getSelectedDrag = () => {
-  if (!dragRef.value) return;
+  if (!dragRef.value || !start.value || !end.value) return;
   const minT = Math.min(start.value.y, end.value.y);
   const maxT = Math.max(start.value.y, end.value.y);
   const minL = Math.min(start.value.x, end.value.x);
   const maxL = Math.max(start.value.x, end.value.x);
   selectedDragRef.value = dragRef.value.filter((d) => {
-    return d.left >= minL && d.left <= maxL && d.top <= maxT && d.top >= minT;
+    return d.left >= minL && d.left <= maxL && d.top <= maxT && d.top >= minT && !d.belong;
   });
 };
 const selectedIds = computed(() => {
@@ -140,29 +165,29 @@ useEventListener(container, 'mousedown', (e: MouseEvent) => {
   selectedDragRef.value = [];
   selecting.value = true;
   start.value = {
-    x: e.clientX,
-    y: e.clientY,
+    x: e.clientX - containerBounding.left.value,
+    y: e.clientY - containerBounding.top.value,
   };
   end.value = {
-    x: e.clientX,
-    y: e.clientY,
+    x: e.clientX - containerBounding.left.value,
+    y: e.clientY - containerBounding.top.value,
   };
 });
 useEventListener(container, 'mousemove', (e: MouseEvent) => {
   if (!selecting.value) return;
   end.value = {
-    x: e.clientX,
-    y: e.clientY,
+    x: e.clientX - containerBounding.left.value,
+    y: e.clientY - containerBounding.top.value,
   };
   getSelectedDrag();
 });
 useEventListener(container, 'mouseup', (e: MouseEvent) => {
   end.value = {
-    x: e.clientX,
-    y: e.clientY,
+    x: e.clientX - containerBounding.left.value,
+    y: e.clientY - containerBounding.top.value,
   };
   selecting.value = false;
-  start.value = { x: 0, y: 0 };
-  end.value = { x: 0, y: 0 };
+  start.value = undefined;
+  end.value = undefined;
 });
 </script>

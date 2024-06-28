@@ -1,3 +1,5 @@
 <template>
-  <Drag />
+  <main class="h-svh w-svw">
+    <Drag />
+  </main>
 </template>

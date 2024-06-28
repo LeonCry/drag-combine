@@ -3,10 +3,11 @@
 </template>
 <script setup lang="ts">
 const props = defineProps<{
-  start: { x: number; y: number };
-  end: { x: number; y: number };
+  start: { x: number; y: number } | undefined;
+  end: { x: number; y: number } | undefined;
 }>();
 const style = computed(() => {
+  if (!props.start || !props.end) return;
   const width = Math.abs(props.end.x - props.start.x) + 'px';
   const height = Math.abs(props.end.y - props.start.y) + 'px';
   const left = Math.min(props.end.x, props.start.x) + 'px';
