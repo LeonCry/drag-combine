@@ -10,6 +10,7 @@ declare module 'vue' {
     ContextMenu: typeof import('./src/components/ContextMenu.vue')['default']
     DefaultLayout: typeof import('./src/layouts/defaultLayout.vue')['default']
     Drag: typeof import('./src/components/Drag.vue')['default']
+    ElementTree: typeof import('./src/components/ElementTree.vue')['default']
     GridEdge: typeof import('./src/components/GridEdge.vue')['default']
     HelloWorld: typeof import('./src/pages/HelloWorld.vue')['default']
     Home: typeof import('./src/views/home/Home.vue')['default']

@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute border-[#0073ED] bg-[#0072ed41]" :style="style" />
+  <div class="absolute z-[9999] border-[#0073ED] bg-[#0072ed41]" :style="style" />
 </template>
 <script setup lang="ts">
 const props = defineProps<{
